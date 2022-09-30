@@ -13,8 +13,9 @@ func Del(id int) {
 func SelectAll() []dao.Food {
 	return dao.Query()
 }
-func Select(id int) dao.Food {
-	return dao.Select(id)
+func Select(id int) *dao.Food {
+	food := dao.Select(id)
+	return &food
 }
 func Update(do *dao.Food) {
 	dao.UpdateData(do)

@@ -1,9 +1,9 @@
 package read
 
 import (
-	"fmt"
 	"net/http"
 	"project/dao"
+	"project/response"
 	"project/service"
 	"strconv"
 
@@ -13,36 +13,37 @@ import (
 func Add(c echo.Context) (err error) {
 	u := new(dao.Food)
 	if err = c.Bind(u); err != nil {
-
-		return c.JSON(http.StatusOK, "add fail")
+		return c.JSONBlob(http.StatusBadRequest, nil)
 	}
 	service.Save(u)
-	return c.JSON(http.StatusOK, "add success")
+	return c.JSON(http.StatusOK, response.OK())
 }
 
 // 删除
 func Del(c echo.Context) error {
 	id := c.QueryParam("id")
 	if id == "" {
-		return c.JSON(http.StatusOK, "del fail")
+		return c.JSON(http.StatusOK, response.ParamError)
 	}
-	i, _ := strconv.Atoi(id)
-
+	i, e := strconv.Atoi(id)
+	if e != nil {
+		return c.JSON(http.StatusInternalServerError, response.Error(nil))
+	}
 	service.Del(i)
-	return c.JSON(http.StatusOK, "del success")
+	return c.JSON(http.StatusOK, response.OK())
 }
 
 // 更新
 func Update(c echo.Context) (err error) {
 
 	product := new(dao.Food)
+
 	if err = c.Bind(product); err != nil {
-		return c.JSON(http.StatusOK, "update fail")
+		return c.JSONBlob(http.StatusBadRequest, nil)
 	}
 	// 保存
-	fmt.Println(product)
 	service.Update(product)
-	return c.JSON(http.StatusOK, "update success")
+	return c.JSON(http.StatusOK, response.OK())
 }
 
 // 查询
@@ -50,8 +51,11 @@ func GetList(c echo.Context) error {
 	param := c.QueryParam("id")
 
 	if param == "" {
-		return c.JSON(http.StatusOK, service.SelectAll())
+		return c.JSON(http.StatusOK, response.All(service.SelectAll()))
 	}
-	i, _ := strconv.Atoi(param)
-	return c.JSON(http.StatusOK, service.Select(i))
+	i, err := strconv.Atoi(param)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Error(nil))
+	}
+	return c.JSON(http.StatusOK, response.Single(service.Select(i)))
 }

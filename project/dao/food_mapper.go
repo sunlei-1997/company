@@ -1,21 +1,26 @@
 package dao
 
 import (
+	"fmt"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func GetDb() *gorm.DB {
-	db, _ := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	if err != nil {
+		fmt.Println("error")
+	}
 	return db
 }
 
 type Food struct {
-	Id    int
-	Title string
-	Price float32
-	Stock int
-	Type  int
+	Id    int     `json:"id"`
+	Title string  `json:"title"`
+	Price float32 `json:"price"`
+	Stock int     `json:"stock"`
+	Type  int     `json:"type"`
 }
 
 // 为Food绑定表名
@@ -26,21 +31,33 @@ func (v Food) TableName() string {
 // 增
 func Add(food *Food) {
 	db := GetDb()
-	db.Create(food)
+	if err := db.Create(food).Error; err != nil {
+		// 错误处理
+		fmt.Println("add error")
+	}
+
 }
 
 // 删
 func Del(id int) {
 	db := GetDb()
-	db.Delete(Food{}, "id=?", id)
+
+	if err := db.Delete(Food{}, "id=?", id).Error; err != nil {
+		// 错误处理
+		fmt.Println("del error")
+	}
 }
 
 // 改
 func UpdateData(food *Food) {
 
 	db := GetDb()
-	db.Exec("UPDATE foods SET price=?,stock=?,title=?,type=? WHERE id=?",
-		food.Price, food.Stock, food.Title, food.Type, food.Id)
+
+	if err := db.Exec("UPDATE foods SET price=?,stock=?,title=?,type=? WHERE id=?",
+		food.Price, food.Stock, food.Title, food.Type, food.Id).Error; err != nil {
+		// 错误处理
+		fmt.Println("update error")
+	}
 
 }
 
@@ -49,7 +66,11 @@ func Query() []Food {
 	db := GetDb()
 	//var pList []T_product
 	var pList []Food
-	db.Find(&pList)
+
+	if err := db.Find(&pList).Error; err != nil {
+		// 错误处理
+		fmt.Println("selectAll error")
+	}
 	return pList
 }
 
@@ -57,6 +78,10 @@ func Query() []Food {
 func Select(id int) Food {
 	db := GetDb()
 	var t_p Food
-	db.Raw("SELECT * FROM foods WHERE id = ?", id).Scan(&t_p)
+
+	if err := db.Raw("SELECT * FROM foods WHERE id = ?", id).Scan(&t_p).Error; err != nil {
+		// 错误处理
+		fmt.Println("select error")
+	}
 	return t_p
 }
