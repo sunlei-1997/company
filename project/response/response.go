@@ -1,6 +1,8 @@
 package response
 
-import "project/dao"
+import (
+	"project/entity"
+)
 
 type (
 	GlobalErrorCode struct {
@@ -47,7 +49,7 @@ func Failure() *Response {
 
 // 查询所有
 func All(data interface{}) *ProjectResponse {
-	total := len(data.([]dao.Food))
+	total := len(data.([]*entity.Food))
 	newData := &NewData{List: data, Total: total}
 	res := &ProjectResponse{
 		Code: 1,

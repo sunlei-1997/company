@@ -2,21 +2,27 @@ package service
 
 import (
 	"project/dao"
+	"project/entity"
 )
 
-func Save(do *dao.Food) {
-	dao.Add(do)
+var foodDao = new(dao.FoodDao)
+
+type ProductService struct {
 }
-func Del(id int) {
-	dao.Del(id)
+
+func (p *ProductService) Save(do *entity.Food) {
+	foodDao.Add(do)
 }
-func SelectAll() []dao.Food {
-	return dao.Query()
+func (p *ProductService) Del(id int) {
+	foodDao.Del(id)
 }
-func Select(id int) *dao.Food {
-	food := dao.Select(id)
-	return &food
+func (p *ProductService) SelectAll() []*entity.Food {
+	return foodDao.Query()
 }
-func Update(do *dao.Food) {
-	dao.UpdateData(do)
+func (p *ProductService) Select(id int) *entity.Food {
+	food := foodDao.Select(id)
+	return food
+}
+func (p *ProductService) Update(do *entity.Food) {
+	foodDao.UpdateData(do)
 }
